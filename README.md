@@ -2,7 +2,7 @@
 
 Node.js package for making Azure Active Directory Graph API calls
 
->Latest Version: 0.0.3
+Latest Version: **0.0.3**
 
 ## Installation
 
@@ -37,9 +37,15 @@ This section describes the constructor returned by this module and the available
 
 ### Constructor
 
-#### `GraphAPI(tenant, clientId, clientSecret, [apiVersion])`
+#### GraphAPI(tenant, clientId, clientSecret, [apiVersion])
 
 Creates a new `GraphAPI` instance. If the `apiVersion` is not specified, it defaults to version 1.5.
+
+```javascript
+var GraphAPI = require('azure-graphapi');
+
+var graph = new GraphAPI(tenant, clientId, clientSecret);
+```
 
 ### Methods
 
@@ -73,31 +79,31 @@ graph.get('users/{userId}', person, function(err, user) {
 
 In all cases, do *not* prefix the `ref` with a forward slash and do *not* add the API version as this is added automatically based on the API version specified in the constructor.
 
-#### `graph.get(ref [,args...], callback)`
+#### graph.get(ref [,args...], callback)
 
 Performs an HTTPS GET request. The callback signature is `callback(err, response)`.
 
-#### `graph.post(ref [,args...], data, callback)`
+#### graph.post(ref [,args...], data, callback)
 
 Performs an HTTPS POST request. The `data` is the request object. The callback signature is `callback(err, response)`.
 
-#### `graph.put(ref [,args...], data, callback)`
+#### graph.put(ref [,args...], data, callback)
 
 Performs an HTTPS PUT request. The `data` is the request object. The callback signature is `callback(err, response)`.
 
-#### `graph.patch(ref [,args...], data, callback)`
+#### graph.patch(ref [,args...], data, callback)
 
 Performs an HTTPS PATCH request. The `data` is the request object. The callback signature is `callback(err, response)`.
 
-#### `graph.delete(ref [,args...], callback)`
+#### graph.delete(ref [,args...], callback)
 
 Performs an HTTPS DELETE request. The callback signature is `callback(err)`.
 
-#### `graph.request(method, ref [,args...], data, callback)`
+#### graph.request(method, ref [,args...], data, callback)
 
 Performs the HTTPS request specified by the `method`. The `data` is the request object and can be `null`. The callback signature is `callback(err)` for 204 (No Content) responses and `callback(err, response)` for all other success status codes.
 
-#### `graph.getObjects(ref [,args...], objectType, callback)`
+#### graph.getObjects(ref [,args...], objectType, callback)
 
 Performs an HTTPS GET request and accumulates all objects having the specified `objectType` (e.g., "User"). The callback signature is `callback(err, response)`. This method follows the `odata.nextLink` property in the response and continues until no more batches of objects are available.
 
