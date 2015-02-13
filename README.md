@@ -14,6 +14,7 @@ npm install azure-graphapi --save
 var GraphAPI = require('azure-graphapi');
 
 var graph = new GraphAPI(tenant, clientId, clientSecret);
+// The tenant, clientId, and clientSecret are usually in a configuration file.
 
 graph.get('users/a8272675-dc21-4ff4-bc8d-8647830fa7db', function(err, user) {
     if (!err) {
@@ -24,7 +25,9 @@ graph.get('users/a8272675-dc21-4ff4-bc8d-8647830fa7db', function(err, user) {
 
 ## Details
 
-This package provides an HTTPS interface to the [Azure Active Directory Graph API](https://msdn.microsoft.com/en-us/library/azure/hh974476.aspx). You will need the tenant (i.e., domain) of your Azure AD instance as well as an application within that AD instance that has permissions to access you directory. This application is identified by a `clientId` and authenticated using a `clientSecret`. The `clientSecret` is also called an application key.
+This package provides an HTTPS interface to the [Azure Active Directory Graph API](https://msdn.microsoft.com/en-us/library/azure/hh974476.aspx). You will need the tenant (i.e., domain) of your Azure AD instance as well as an application within that AD instance that has permissions to access your directory. This application is identified by a `clientId` and authenticated using a `clientSecret`. The `clientSecret` is also called the application key.
+
+The typical verbs are supported (GET, POST, PUT, PATCH, and DELETE). The generic `request` method supports arbitrary requests. The `getObjects` method is useful for reading a large number of objects. Azure AD limits each response to 100 objects. The `getObject` method follows the `odata.nextLink` and accumulates all objects of a specific object type.
 
 ## Interface
 
