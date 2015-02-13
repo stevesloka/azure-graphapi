@@ -7,8 +7,10 @@
 // new token is obtained and the request is retried.
 //-----------------------------------------------------------------------------
 
-var https = require('https'),
+var http = require('http'),
+    https = require('https'),
     querystring = require('querystring'),
+    strformat = require('strformat'),
     slice = Array.prototype.slice,
     AAD_LOGIN_HOSTNAME = 'login.windows.net',
     GRAPH_API_HOSTNAME = 'graph.windows.net',
@@ -35,6 +37,14 @@ GraphAPI.prototype.get = function (ref, callback) {
     ref = strformat.apply(null, slice.call(arguments, 0, -1));
     callback = slice.call(arguments, -1)[0];
     this.request('GET', ref, null, callback);
+}
+
+// HTTPS GET with odata.nextList recursive call
+GraphAPI.prototype.getObjects = function (ref, objectType, callback) {
+    ref = strformat.apply(null, slice.call(arguments, 0, -2));
+    objectType = slice.call(arguments, -2, -1)[0];
+    callback = slice.call(arguments, -1)[0];
+    this._getObjects(ref, [], objectType, callback);
 }
 
 // HTTPS POST
@@ -66,14 +76,6 @@ GraphAPI.prototype.delete = function (ref, callback) {
     ref = strformat.apply(null, slice.call(arguments, 0, -1));
     callback = slice.call(arguments, -1)[0];
     this.request('DELETE', ref, null, callback);
-}
-
-// HTTPS GET with odata.nextList recursive call
-GraphAPI.prototype.getObjects = function (ref, objectType, callback) {
-    ref = strformat.apply(null, slice.call(arguments, 0, -2));
-    objectType = slice.call(arguments, -2, -1)[0];
-    callback = slice.call(arguments, -1)[0];
-    this._getObjects(ref, [], objectType, callback);
 }
 
 // Generic HTTPS request
@@ -154,7 +156,6 @@ GraphAPI.prototype._request = function (method, ref, data, secondAttempt, callba
                     }
                 });
             } else {
-                log.error(err);
                 callback(err);
             }
         } else {
@@ -233,7 +234,7 @@ function httpsRequest(options, content, callback) {
                 } else if (data && data['odata.error']) {
                     data = data['odata.error'].message.value;
                 } else {
-                    data = https.STATUS_CODES[status];
+                    data = null;
                 }
                 callback(new Error(errmsg(res.statusCode, data)));
             }
@@ -250,7 +251,9 @@ function httpsRequest(options, content, callback) {
 
 // Creates an exception error message.
 function errmsg(status, message) {
-    return 'Graph API Error: (' + status + ') ' + message;
+    message = message || '[no additional details]';
+    return strformat('Graph API Error: {0} ({1}) {2}',
+        status, http.STATUS_CODES[status], message);
 }
 
 //-----------------------------------------------------------------------------

@@ -2,8 +2,10 @@
 
 ## Version 0.0.3
 
-- Allow string formatting using placeholders (requires strformat).
+- Allow string formatting using placeholders (require strformat).
 - Fixed bug in getObjects where get was not called with a context.
+- Remove log object reference.
+- Fix HTTP status code lookup (require https).
 
 ## Version 0.0.2
 
