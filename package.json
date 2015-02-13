@@ -5,7 +5,7 @@
     "main": "graphapi.js",
     "repository": {
         "type": "git",
-        "url": "https://bitbucket.org/rppr/common-api.git"
+        "url": "https://github.com/fhellwig/azure-graphapi"
     },
     "author": "Frank Hellwig",
     "license": "MIT"
