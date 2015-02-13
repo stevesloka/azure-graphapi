@@ -92,7 +92,7 @@ request(method, uri, data, callback)
 getObjects(uri, objectType, callback)
 ```
 
-[Method] Performs an HTTPS GET request and accumulates all objects having the specified `objectType` (e.g., "User"). The `uri` must *not* begin with a slash. The callback signature is `callback(err, response)`. This method follows the `odata.nextLink` property in the response continues until no more batches of objects are available.
+[Method] Performs an HTTPS GET request and accumulates all objects having the specified `objectType` (e.g., "User"). The `uri` must *not* begin with a slash. The callback signature is `callback(err, response)`. This method follows the `odata.nextLink` property in the response and continues until no more batches of objects are available.
 
 ## Notes
 
