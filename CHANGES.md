@@ -4,6 +4,7 @@
 
 - Corrected typographical errors in the README.md file.
 - Corrected the repository in the package.json file.
+- Corrected comments in the GraphAPI.js file.
 
 ## Version 0.0.1
 

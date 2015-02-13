@@ -2,9 +2,9 @@
 // Azure Active Directory (AAD) Graph API
 //
 // Provides HTTP method access to the AAD Graph API. This module gets the
-// authentication token for the app specified in the configuration file and
-// then uses that to make the API calls. If a call fails due to a 401 error,
-// a new token is obtained and the request is retried.
+// authentication token for the app specified in the constructor and then
+// uses that to make the API calls. If a call fails due to a 401 error, a
+// new token is obtained and the request is retried.
 //-----------------------------------------------------------------------------
 
 var https = require('https'),
