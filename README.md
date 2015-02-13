@@ -94,7 +94,7 @@ getObjects(uri, objectType, callback)
 
 [Method] Performs an HTTPS GET request and accumulates all objects having the specified `objectType` (e.g., "User"). The `uri` must *not* begin with a slash. The callback signature is `callback(err, response)`. This method follows the `odata.nextLink` property in the response continues until no more batches of objects are available.
 
-### Notes
+## Notes
 
 1. The HTTPS request logic parses out the `error_description` and `odata.error` messages from JSON respones to unsuccessful requests. These become part of the error message in the `err` object provided to the callback method.
 2. If the request data is a string, instead of a JavaScript object, it is assumed to be form data and is sent as `application/x-www-form-urlencoded` content instead of `application/json`.
