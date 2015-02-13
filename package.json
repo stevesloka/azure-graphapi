@@ -1,6 +1,6 @@
 {
     "name": "azure-graphapi",
-    "version": "0.0.1",
+    "version": "0.0.2",
     "description": "Node.js package for making Azure Active Directory Graph API calls.",
     "main": "graphapi.js",
     "repository": {

@@ -140,6 +140,8 @@ GraphAPI.prototype._request = function (method, uri, data, secondAttempt, callba
             if (typeof response === 'undefined') {
                 // Handle 204 responses by not adding a second argument.
                 callback(null);
+            } else if (response.value) {
+                callback(null, response.value);
             } else {
                 callback(null, response);
             }
@@ -235,4 +237,3 @@ function errmsg(status, message) {
 //-----------------------------------------------------------------------------
 
 module.exports = GraphAPI; // export the constructor
-
