@@ -33,66 +33,69 @@ The typical verbs are supported (GET, POST, PUT, PATCH, and DELETE). The generic
 
 ### Constructor
 
-```javascript
-GraphAPI(tenant, clientId, clientSecret, [apiVersion])
-```
+#### GraphAPI(tenant, clientId, clientSecret, [apiVersion])
 
-[Constructor] Creates a new `GraphAPI` instance. If the `apiVersion` is not specified, it defaults to version 1.5.
+Creates a new `GraphAPI` instance. If the `apiVersion` is not specified, it defaults to version 1.5.
 
-### HTTPS GET
+### Methods
 
-```javascript
-get(uri, callback)
-```
-
-[Method] Performs an HTTPS GET request. The `uri` must *not* begin with a slash. The callback signature is `callback(err, response)`.
-
-### HTTPS POST
+Each of these methods takes `ref` parameter with optional replacement `args`. These are passed to [strformat](https://github.com/fhellwig/strformat) to create the actual URI reference. This allows for the following constructs:
 
 ```javascript
-post(uri, data, callback)
+var person = {
+    userId: 'a8272675-dc21-4ff4-bc8d-8647830fa7db'
+};
+
+graph.get('users/{0}', person.userId, function(err, user) {
+    if (!err) {
+        console.dir(user);
+    }
+}
 ```
 
-[Method] Performs an HTTPS POST request. The `uri` must *not* begin with a slash. The `data` is the request object. The callback signature is `callback(err, response)`.
-
-### HTTPS PUT
-```javascript
-put(uri, data, callback)
-```
-
-[Method] Performs an HTTPS PUT request. The `uri` must *not* begin with a slash. The `data` is the request object. The callback signature is `callback(err, response)`.
-
-### HTTPS PATCH
-
-```javascript
-patch(uri, data, callback)
-```
-
-[Method] Performs an HTTPS PATCH request. The `uri` must *not* begin with a slash. The `data` is the request object. The callback signature is `callback(err, response)`.
-
-### HTTPS DELETE
+The following REST-style URI reference is also available:
 
 ```javascript
-delete(uri, callback)
+var person = {
+    userId: 'a8272675-dc21-4ff4-bc8d-8647830fa7db'
+};
+
+graph.get('users/{userId}', person, function(err, user) {
+    if (!err) {
+        console.dir(user);
+    }
+}
 ```
 
-[Method] Performs an HTTPS DELETE request. The `uri` must *not* begin with a slash. The callback signature is `callback(err)`.
+In all cases, do *not* prefix the `ref` with a forward slash and do *not* add the API version as this is added automatically based on the API version specified in the constructor.
 
-### HTTPS (generic)
+#### graph.get(ref [,args...], callback)
 
-```javascript
-request(method, uri, data, callback)
-```
+Performs an HTTPS GET request. The callback signature is `callback(err, response)`.
 
-[Method] Performs the HTTPS request specified by the `method`. The `uri` must *not* begin with a slash. The `data` is the request object and can be `null`. The callback signature is `callback(err)` for 204 (No Content) responses and `callback(err, response)` for all other success status codes.
+#### graph.post(ref [,args...], data, callback)
 
-### HTTPS GET (multiple objects)
+Performs an HTTPS POST request. The `data` is the request object. The callback signature is `callback(err, response)`.
 
-```javascript
-getObjects(uri, objectType, callback)
-```
+#### graph.put(ref [,args...], data, callback)
 
-[Method] Performs an HTTPS GET request and accumulates all objects having the specified `objectType` (e.g., "User"). The `uri` must *not* begin with a slash. The callback signature is `callback(err, response)`. This method follows the `odata.nextLink` property in the response and continues until no more batches of objects are available.
+Performs an HTTPS PUT request. The `data` is the request object. The callback signature is `callback(err, response)`.
+
+#### graph.patch(ref [,args...], data, callback)
+
+Performs an HTTPS PATCH request. The `data` is the request object. The callback signature is `callback(err, response)`.
+
+#### graph.delete(ref [,args...], callback)
+
+Performs an HTTPS DELETE request. The callback signature is `callback(err)`.
+
+#### graph.request(method, ref [,args...], data, callback)
+
+Performs the HTTPS request specified by the `method`. The `data` is the request object and can be `null`. The callback signature is `callback(err)` for 204 (No Content) responses and `callback(err, response)` for all other success status codes.
+
+#### graph.getObjects(ref [,args...], objectType, callback)
+
+Performs an HTTPS GET request and accumulates all objects having the specified `objectType` (e.g., "User"). The callback signature is `callback(err, response)`. This method follows the `odata.nextLink` property in the response and continues until no more batches of objects are available.
 
 ## Notes
 

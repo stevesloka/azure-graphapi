@@ -1,5 +1,10 @@
 # azure-graphapi change log
 
+## Version 0.0.3
+
+- Allow string formatting using placeholders (requires strformat).
+- Fixed bug in getObjects where get was not called with a context.
+
 ## Version 0.0.2
 
 - Corrected typographical errors in the README.md file.
