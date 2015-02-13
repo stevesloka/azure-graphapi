@@ -31,11 +31,15 @@ The typical verbs are supported (GET, POST, PUT, PATCH, and DELETE). The generic
 
 ## Interface
 
+### Constructor
+
 ```javascript
 GraphAPI(tenant, clientId, clientSecret, [apiVersion])
 ```
 
 [Constructor] Creates a new `GraphAPI` instance. If the `apiVersion` is not specified, it defaults to version 1.5.
+
+### HTTPS GET
 
 ```javascript
 get(uri, callback)
@@ -43,18 +47,22 @@ get(uri, callback)
 
 [Method] Performs an HTTPS GET request. The `uri` must *not* begin with a slash. The callback signature is `callback(err, response)`.
 
+### HTTPS POST
+
 ```javascript
 post(uri, data, callback)
 ```
 
 [Method] Performs an HTTPS POST request. The `uri` must *not* begin with a slash. The `data` is the request object. The callback signature is `callback(err, response)`.
 
-
+### HTTPS PUT
 ```javascript
 put(uri, data, callback)
 ```
 
 [Method] Performs an HTTPS PUT request. The `uri` must *not* begin with a slash. The `data` is the request object. The callback signature is `callback(err, response)`.
+
+### HTTPS PATCH
 
 ```javascript
 patch(uri, data, callback)
@@ -62,11 +70,15 @@ patch(uri, data, callback)
 
 [Method] Performs an HTTPS PATCH request. The `uri` must *not* begin with a slash. The `data` is the request object. The callback signature is `callback(err, response)`.
 
+### HTTPS DELETE
+
 ```javascript
 delete(uri, callback)
 ```
 
 [Method] Performs an HTTPS DELETE request. The `uri` must *not* begin with a slash. The callback signature is `callback(err)`.
+
+### HTTPS (generic)
 
 ```javascript
 request(method, uri, data, callback)
@@ -74,11 +86,18 @@ request(method, uri, data, callback)
 
 [Method] Performs the HTTPS request specified by the `method`. The `uri` must *not* begin with a slash. The `data` is the request object and can be `null`. The callback signature is `callback(err)` for 204 (No Content) responses and `callback(err, response)` for all other success status codes.
 
+### HTTPS GET (multiple objects)
+
 ```javascript
 getObjects(uri, objectType, callback)
 ```
 
 [Method] Performs an HTTPS GET request and accumulates all objects having the specified `objectType` (e.g., "User"). The `uri` must *not* begin with a slash. The callback signature is `callback(err, response)`. This method follows the `odata.nextLink` property in the response continues until no more batches of objects are available.
+
+### Notes
+
+1. The HTTPS request logic parses out the `error_description` and `odata.error` messages from JSON respones to unsuccessful requests. These become part of the error message in the `err` object provided to the callback method.
+2. If the request data is a string, instead of a JavaScript object, it is assumed to be form data and is sent as `application/x-www-form-urlencoded` content instead of `application/json`.
 
 ## License
 
