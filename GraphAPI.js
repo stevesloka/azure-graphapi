@@ -1,6 +1,7 @@
 //-----------------------------------------------------------------------------
 // Azure Active Directory (AAD) Graph API
 //
+//
 // Provides an HTTPS interface to the AAD Graph API. This module requests an
 // access token for the application specified in the constructor and then uses
 // that token to make the API calls. If a call fails due to a 401 error, a new
@@ -36,7 +37,7 @@ function GraphAPI(tenant, clientId, clientSecret, apiVersion) {
 GraphAPI.prototype.get = function (ref, callback) {
     ref = strformat.apply(null, slice.call(arguments, 0, -1));
     callback = slice.call(arguments, -1)[0];
-    this.request('GET', ref, null, callback);
+    this._request('GET', ref, null, wrap(callback));
 }
 
 // HTTPS GET with odata.nextList recursive call
@@ -52,7 +53,7 @@ GraphAPI.prototype.post = function (ref, data, callback) {
     ref = strformat.apply(null, slice.call(arguments, 0, -2));
     data = slice.call(arguments, -2, -1)[0];
     callback = slice.call(arguments, -1)[0];
-    this.request('POST', ref, data, callback);
+    this._request('POST', ref, data, wrap(callback));
 }
 
 // HTTPS PUT
@@ -60,7 +61,7 @@ GraphAPI.prototype.put = function (ref, data, callback) {
     ref = strformat.apply(null, slice.call(arguments, 0, -2));
     data = slice.call(arguments, -2, -1)[0];
     callback = slice.call(arguments, -1)[0];
-    this.request('PUT', ref, data, callback);
+    this._request('PUT', ref, data, wrap(callback));
 }
 
 // HTTPS PATCH
@@ -68,45 +69,40 @@ GraphAPI.prototype.patch = function (ref, data, callback) {
     ref = strformat.apply(null, slice.call(arguments, 0, -2));
     data = slice.call(arguments, -2, -1)[0];
     callback = slice.call(arguments, -1)[0];
-    this.request('PATCH', ref, data, callback);
+    this._request('PATCH', ref, data, wrap(callback));
 }
 
 // HTTPS DELETE
 GraphAPI.prototype.delete = function (ref, callback) {
     ref = strformat.apply(null, slice.call(arguments, 0, -1));
     callback = slice.call(arguments, -1)[0];
-    this.request('DELETE', ref, null, callback);
-}
-
-// Generic HTTPS request
-GraphAPI.prototype.request = function (method, ref, data, callback) {
-    method = arguments[0];
-    ref = strformat.apply(null, slice.call(arguments, 1, -2));
-    data = slice.call(arguments, -2, -1)[0];
-    callback = slice.call(arguments, -1)[0];
-    var self = this;
-    if (self.accessToken) {
-        self._request(method, ref, data, false, callback);
-    } else {
-        self._requestAccessToken(function (err, token) {
-            if (err) {
-                callback(err);
-            } else {
-                self.accessToken = token;
-                self._request(method, ref, data, false, callback);
-            }
-        });
-    }
+    this._request('DELETE', ref, null, wrap(callback));
 }
 
 //-----------------------------------------------------------------------------
 // PRIVATE
 //-----------------------------------------------------------------------------
 
+// Only return the value and the correct number of arguments.
+function wrap(callback) {
+    return function (err, response) {
+        if (err) {
+            callback(err);
+        } else if (typeof response === 'undefined') {
+            // Handle 204 responses by not adding a second argument.
+            callback(null);
+        } else if (response.value) {
+            callback(null, response.value);
+        } else {
+            callback(null, response);
+        }
+    }
+}
+
 // Recursive method that follows the odata.nextLink.
 GraphAPI.prototype._getObjects = function (ref, objects, objectType, callback) {
     var self = this;
-    self.get(ref, function (err, response) {
+    self._request('GET', ref, null, function (err, response) {
         if (err) return callback(err);
         var value = response.value;
         for (var i = 0, n = value.length; i < n; i++) {
@@ -123,9 +119,31 @@ GraphAPI.prototype._getObjects = function (ref, objects, objectType, callback) {
     });
 }
 
+// If there is an access token, perform the request. If not, get an
+// access token and then perform the request.
+GraphAPI.prototype._request = function (method, ref, data, callback) {
+    method = arguments[0];
+    ref = strformat.apply(null, slice.call(arguments, 1, -2));
+    data = slice.call(arguments, -2, -1)[0];
+    callback = slice.call(arguments, -1)[0];
+    var self = this;
+    if (self.accessToken) {
+        self._requestWithRetry(method, ref, data, false, callback);
+    } else {
+        self._requestAccessToken(function (err, token) {
+            if (err) {
+                callback(err);
+            } else {
+                self.accessToken = token;
+                self._requestWithRetry(method, ref, data, false, callback);
+            }
+        });
+    }
+}
+
 // Performs the HTTPS request and tries again on a 401 error
 // by getting another access token and repeating the request.
-GraphAPI.prototype._request = function (method, ref, data, secondAttempt, callback) {
+GraphAPI.prototype._requestWithRetry = function (method, ref, data, secondAttempt, callback) {
     var self = this;
     var path = ['/'];
     path.push(self.tenant);
@@ -133,6 +151,8 @@ GraphAPI.prototype._request = function (method, ref, data, secondAttempt, callba
     path.push(ref);
     if (ref.indexOf('?') < 0) {
         path.push('?');
+    } else {
+        path.push('&');
     }
     path.push('api-version=');
     path.push(self.apiVersion);
@@ -152,21 +172,14 @@ GraphAPI.prototype._request = function (method, ref, data, secondAttempt, callba
                         callback(err);
                     } else {
                         accessToken = token;
-                        self._request(method, ref, data, true, callback);
+                        self._requestWithRetry(method, ref, data, true, callback);
                     }
                 });
             } else {
                 callback(err);
             }
         } else {
-            if (typeof response === 'undefined') {
-                // Handle 204 responses by not adding a second argument.
-                callback(null);
-            } else if (response.value) {
-                callback(null, response.value);
-            } else {
-                callback(null, response);
-            }
+            callback(null, response);
         }
     });
 }

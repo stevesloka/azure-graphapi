@@ -1,11 +1,17 @@
 # azure-graphapi change log
 
+## Version 0.0.4
+
+- Fixed bug in the _getObjects method.
+- Removed the generic request method.
+- Fixed bug when appending version to existing query string.
+ 
 ## Version 0.0.3
 
 - Allow string formatting using placeholders (require strformat).
 - Fixed bug in getObjects where get was not called with a context.
 - Remove log object reference.
-- Fix HTTP status code lookup (require https).
+- Fixed HTTP status code lookup (require https).
 
 ## Version 0.0.2
 
