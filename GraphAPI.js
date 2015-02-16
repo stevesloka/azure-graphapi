@@ -171,7 +171,7 @@ GraphAPI.prototype._requestWithRetry = function (method, ref, data, secondAttemp
                     if (err) {
                         callback(err);
                     } else {
-                        accessToken = token;
+                        self.accessToken = token;
                         self._requestWithRetry(method, ref, data, true, callback);
                     }
                 });

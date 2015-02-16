@@ -1,5 +1,9 @@
 # azure-graphapi change log
 
+## Version 0.0.5
+
+- Access token was not being set correctly on retry.
+
 ## Version 0.0.4
 
 - Fixed bug in the _getObjects method.
