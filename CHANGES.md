@@ -1,5 +1,9 @@
 # azure-graphapi change log
 
+## Version 0.0.6
+
+- Status code was not attached to error object from httpRequest.
+
 ## Version 0.0.5
 
 - Access token was not being set correctly on retry.

@@ -249,7 +249,9 @@ function httpsRequest(options, content, callback) {
                 } else {
                     data = null;
                 }
-                callback(new Error(errmsg(res.statusCode, data)));
+                var err = new Error(errmsg(res.statusCode, data));
+                err.statusCode = res.statusCode;
+                callback(err);
             }
         });
     });
