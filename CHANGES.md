@@ -1,5 +1,9 @@
 # azure-graphapi change log
 
+## Version 0.0.7
+
+- Changed the main property in package.json to the correct case.
+
 ## Version 0.0.6
 
 - Status code was not attached to error object from httpRequest.
