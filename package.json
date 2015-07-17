@@ -1,15 +1,15 @@
 {
-  "name": "azure-graphapi",
-  "version": "0.0.7",
-  "description": "Node.js package for making Azure Active Directory Graph API calls.",
-  "main": "GraphAPI.js",
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/fhellwig/azure-graphapi"
-  },
-  "author": "Frank Hellwig",
-  "license": "MIT",
-  "dependencies": {
-    "strformat": "0.0.5"
-  }
+    "name": "azure-graphapi",
+    "version": "0.0.8",
+    "description": "Node.js package for making Azure Active Directory Graph API calls.",
+    "main": "GraphAPI.js",
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/fhellwig/azure-graphapi"
+    },
+    "author": "Frank Hellwig",
+    "license": "MIT",
+    "dependencies": {
+        "strformat": "0.0.7"
+    }
 }

@@ -1,5 +1,11 @@
 # azure-graphapi change log
 
+## Version 0.0.8
+
+- Changed strformat dependency from version 0.0.5 to 0.0.7.
+- Updated comments.
+- Added .DS_Store to .gitignore.
+
 ## Version 0.0.7
 
 - Changed the main property in package.json to the correct case.

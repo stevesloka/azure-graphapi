@@ -2,7 +2,7 @@
 
 Node.js package for making Azure Active Directory Graph API calls
 
-Latest Version: **0.0.7**
+v0.0.8
 
 ## Installation
 

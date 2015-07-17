@@ -1,12 +1,15 @@
-//-----------------------------------------------------------------------------
-// Azure Active Directory (AAD) Graph API
-//
-//
-// Provides an HTTPS interface to the AAD Graph API. This module requests an
-// access token for the application specified in the constructor and then uses
-// that token to make the API calls. If a call fails due to a 401 error, a new
-// new access token is obtained and the request is retried.
-//-----------------------------------------------------------------------------
+/**
+ * Azure Active Directory (AAD) Graph API
+ *
+ * Provides an HTTPS interface to the AAD Graph API. This module requests an
+ * access token for the application specified in the constructor and then uses
+ * that token to make the API calls. If a call fails due to a 401 error, a new
+ * new access token is obtained and the request is retried.
+ *
+ * @author Frank Hellwig
+ * @module GraphAPI
+ * @version 0.0.8
+ */
 
 var http = require('http'),
     https = require('https'),
@@ -21,7 +24,9 @@ var http = require('http'),
 // PUBLIC
 //-----------------------------------------------------------------------------
 
-// Constructor
+/**
+ * Constructor
+ */
 function GraphAPI(tenant, clientId, clientSecret, apiVersion) {
     if (!(this instanceof arguments.callee)) {
         throw new Error("Constructor called as a function");
@@ -33,47 +38,59 @@ function GraphAPI(tenant, clientId, clientSecret, apiVersion) {
     this.accessToken = null;
 }
 
-// HTTPS GET
-GraphAPI.prototype.get = function (ref, callback) {
+/**
+ * HTTPS GET
+ */
+GraphAPI.prototype.get = function(ref, callback) {
     ref = strformat.apply(null, slice.call(arguments, 0, -1));
     callback = slice.call(arguments, -1)[0];
     this._request('GET', ref, null, wrap(callback));
 }
 
-// HTTPS GET with odata.nextList recursive call
-GraphAPI.prototype.getObjects = function (ref, objectType, callback) {
+/**
+ * HTTPS GET with odata.nextList recursive call
+ */
+GraphAPI.prototype.getObjects = function(ref, objectType, callback) {
     ref = strformat.apply(null, slice.call(arguments, 0, -2));
     objectType = slice.call(arguments, -2, -1)[0];
     callback = slice.call(arguments, -1)[0];
     this._getObjects(ref, [], objectType, callback);
 }
 
-// HTTPS POST
-GraphAPI.prototype.post = function (ref, data, callback) {
+/**
+ * HTTPS POST
+ */
+GraphAPI.prototype.post = function(ref, data, callback) {
     ref = strformat.apply(null, slice.call(arguments, 0, -2));
     data = slice.call(arguments, -2, -1)[0];
     callback = slice.call(arguments, -1)[0];
     this._request('POST', ref, data, wrap(callback));
 }
 
-// HTTPS PUT
-GraphAPI.prototype.put = function (ref, data, callback) {
+/**
+ * HTTPS PUT
+ */
+GraphAPI.prototype.put = function(ref, data, callback) {
     ref = strformat.apply(null, slice.call(arguments, 0, -2));
     data = slice.call(arguments, -2, -1)[0];
     callback = slice.call(arguments, -1)[0];
     this._request('PUT', ref, data, wrap(callback));
 }
 
-// HTTPS PATCH
-GraphAPI.prototype.patch = function (ref, data, callback) {
+/**
+ * HTTPS PATCH
+ */
+GraphAPI.prototype.patch = function(ref, data, callback) {
     ref = strformat.apply(null, slice.call(arguments, 0, -2));
     data = slice.call(arguments, -2, -1)[0];
     callback = slice.call(arguments, -1)[0];
     this._request('PATCH', ref, data, wrap(callback));
 }
 
-// HTTPS DELETE
-GraphAPI.prototype.delete = function (ref, callback) {
+/**
+ * HTTPS DELETE
+ */
+GraphAPI.prototype.delete = function(ref, callback) {
     ref = strformat.apply(null, slice.call(arguments, 0, -1));
     callback = slice.call(arguments, -1)[0];
     this._request('DELETE', ref, null, wrap(callback));
@@ -85,7 +102,7 @@ GraphAPI.prototype.delete = function (ref, callback) {
 
 // Only return the value and the correct number of arguments.
 function wrap(callback) {
-    return function (err, response) {
+    return function(err, response) {
         if (err) {
             callback(err);
         } else if (typeof response === 'undefined') {
@@ -100,9 +117,9 @@ function wrap(callback) {
 }
 
 // Recursive method that follows the odata.nextLink.
-GraphAPI.prototype._getObjects = function (ref, objects, objectType, callback) {
+GraphAPI.prototype._getObjects = function(ref, objects, objectType, callback) {
     var self = this;
-    self._request('GET', ref, null, function (err, response) {
+    self._request('GET', ref, null, function(err, response) {
         if (err) return callback(err);
         var value = response.value;
         for (var i = 0, n = value.length; i < n; i++) {
@@ -121,7 +138,7 @@ GraphAPI.prototype._getObjects = function (ref, objects, objectType, callback) {
 
 // If there is an access token, perform the request. If not, get an
 // access token and then perform the request.
-GraphAPI.prototype._request = function (method, ref, data, callback) {
+GraphAPI.prototype._request = function(method, ref, data, callback) {
     method = arguments[0];
     ref = strformat.apply(null, slice.call(arguments, 1, -2));
     data = slice.call(arguments, -2, -1)[0];
@@ -130,7 +147,7 @@ GraphAPI.prototype._request = function (method, ref, data, callback) {
     if (self.accessToken) {
         self._requestWithRetry(method, ref, data, false, callback);
     } else {
-        self._requestAccessToken(function (err, token) {
+        self._requestAccessToken(function(err, token) {
             if (err) {
                 callback(err);
             } else {
@@ -143,7 +160,7 @@ GraphAPI.prototype._request = function (method, ref, data, callback) {
 
 // Performs the HTTPS request and tries again on a 401 error
 // by getting another access token and repeating the request.
-GraphAPI.prototype._requestWithRetry = function (method, ref, data, secondAttempt, callback) {
+GraphAPI.prototype._requestWithRetry = function(method, ref, data, secondAttempt, callback) {
     var self = this;
     var path = ['/'];
     path.push(self.tenant);
@@ -164,10 +181,10 @@ GraphAPI.prototype._requestWithRetry = function (method, ref, data, secondAttemp
             'Authorization': 'Bearer ' + self.accessToken
         }
     };
-    httpsRequest(options, data, function (err, response) {
+    httpsRequest(options, data, function(err, response) {
         if (err) {
             if (err.statusCode === 401 && !secondAttempt) {
-                self._requestAccessToken(function (err, token) {
+                self._requestAccessToken(function(err, token) {
                     if (err) {
                         callback(err);
                     } else {
@@ -185,7 +202,7 @@ GraphAPI.prototype._requestWithRetry = function (method, ref, data, secondAttemp
 }
 
 // Gets an access token using the client id and secret.
-GraphAPI.prototype._requestAccessToken = function (callback) {
+GraphAPI.prototype._requestAccessToken = function(callback) {
     var query = {
         client_id: this.clientId,
         client_secret: this.clientSecret,
@@ -198,7 +215,7 @@ GraphAPI.prototype._requestAccessToken = function (callback) {
         path: '/' + this.tenant + '/oauth2/token',
         method: 'POST'
     };
-    httpsRequest(options, content, function (err, response) {
+    httpsRequest(options, content, function(err, response) {
         if (err) {
             callback(err);
         } else {
@@ -224,13 +241,13 @@ function httpsRequest(options, content, callback) {
     } else {
         content = null;
     }
-    var req = https.request(options, function (res) {
+    var req = https.request(options, function(res) {
         res.setEncoding('utf8');
         var buf = [];
-        res.on('data', function (data) {
+        res.on('data', function(data) {
             buf.push(data);
         });
-        res.on('end', function () {
+        res.on('end', function() {
             var data = buf.join('');
             if (data.length > 0) {
                 data = JSON.parse(data);
@@ -255,7 +272,7 @@ function httpsRequest(options, content, callback) {
             }
         });
     });
-    req.on('error', function (err) {
+    req.on('error', function(err) {
         callback(err);
     })
     if (content) {
