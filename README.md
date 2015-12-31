@@ -2,7 +2,7 @@
 
 Node.js package for making Azure Active Directory Graph API calls
 
-v0.0.8
+v0.0.9
 
 ## Installation
 
@@ -83,17 +83,17 @@ In all cases, do *not* prefix the `ref` with a forward slash and do *not* add th
 
 Performs an HTTPS GET request. The callback signature is `callback(err, response)`.
 
-#### graph.post(ref [,args...], data, callback)
+#### graph.post(ref [,args...], data, contentType, callback)
 
-Performs an HTTPS POST request. The `data` is the request object. The callback signature is `callback(err, response)`.
+Performs an HTTPS POST request. The callback signature is `callback(err, response)`.
 
-#### graph.put(ref [,args...], data, callback)
+#### graph.put(ref [,args...], data, contentType, callback)
 
-Performs an HTTPS PUT request. The `data` is the request object. The callback signature is `callback(err, response)`.
+Performs an HTTPS PUT request. The callback signature is `callback(err, response)`.
 
-#### graph.patch(ref [,args...], data, callback)
+#### graph.patch(ref [,args...], data, contentType, callback)
 
-Performs an HTTPS PATCH request. The `data` is the request object. The callback signature is `callback(err, response)`.
+Performs an HTTPS PATCH request. The callback signature is `callback(err, response)`.
 
 #### graph.delete(ref [,args...], callback)
 
@@ -106,9 +106,10 @@ Performs an HTTPS GET request and accumulates all objects having the specified `
 ## Notes
 
 1. The HTTPS request logic parses out the `error_description` and `odata.error` messages from JSON responses to unsuccessful requests. These become part of the error message in the `err` object provided to the callback method.
-2. If the request data is a string, instead of a JavaScript object, it is assumed to be form data and is sent as `application/x-www-form-urlencoded` content instead of `application/json`.
-3. The callback is passed only one argument (err) if the response status code is 204 (No Content). This is important when using libraries such as the [async utilities](https://github.com/caolan/async).
-4. If the response has a `value` property, it is that value that is passed to the callback function and not the entire response object.
+2. If the `contentType` is null and the request data is a string, it is assumed to be form data and is sent as `application/x-www-form-urlencoded`.
+3. If the `contentType` is null and the request data is a JavaScript object, it is send as `application/json`.
+4. The callback is passed only one argument (err) if the response status code is 204 (No Content). This is important when using libraries such as the [async utilities](https://github.com/caolan/async).
+5. If the response has a `value` property, it is that value that is passed to the callback function and not the entire response object.
 
 ## License
 

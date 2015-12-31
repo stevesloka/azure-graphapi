@@ -1,5 +1,9 @@
 # azure-graphapi change log
 
+## Version 0.0.9
+
+- Accept a Buffer as request data.
+
 ## Version 0.0.8
 
 - Changed strformat dependency from version 0.0.5 to 0.0.7.

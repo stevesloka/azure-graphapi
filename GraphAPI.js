@@ -40,60 +40,75 @@ function GraphAPI(tenant, clientId, clientSecret, apiVersion) {
 
 /**
  * HTTPS GET
+ *
+ * get(ref, callback)
  */
-GraphAPI.prototype.get = function(ref, callback) {
-    ref = strformat.apply(null, slice.call(arguments, 0, -1));
-    callback = slice.call(arguments, -1)[0];
-    this._request('GET', ref, null, wrap(callback));
+GraphAPI.prototype.get = function() {
+    var ref = strformat.apply(null, slice.call(arguments, 0, -1)),
+        callback = slice.call(arguments, -1)[0];
+    this._request('GET', ref, null, null, wrap(callback));
 }
 
 /**
  * HTTPS GET with odata.nextList recursive call
+ *
+ * getObjects(ref, objectType, callback)
  */
-GraphAPI.prototype.getObjects = function(ref, objectType, callback) {
-    ref = strformat.apply(null, slice.call(arguments, 0, -2));
-    objectType = slice.call(arguments, -2, -1)[0];
-    callback = slice.call(arguments, -1)[0];
+GraphAPI.prototype.getObjects = function() {
+    var ref = strformat.apply(null, slice.call(arguments, 0, -2)),
+        objectType = slice.call(arguments, -2, -1)[0],
+        callback = slice.call(arguments, -1)[0];
     this._getObjects(ref, [], objectType, callback);
 }
 
 /**
  * HTTPS POST
+ *
+ * post(ref, data, contentType, callback)
  */
-GraphAPI.prototype.post = function(ref, data, callback) {
-    ref = strformat.apply(null, slice.call(arguments, 0, -2));
-    data = slice.call(arguments, -2, -1)[0];
-    callback = slice.call(arguments, -1)[0];
-    this._request('POST', ref, data, wrap(callback));
+GraphAPI.prototype.post = function() {
+    var ref = strformat.apply(null, slice.call(arguments, 0, -3)),
+        data = slice.call(arguments, -3, -2)[0],
+        contentType = slice.call(arguments, -2, -1)[0],
+        callback = slice.call(arguments, -1)[0];
+    this._request('POST', ref, data, contentType, wrap(callback));
 }
 
 /**
  * HTTPS PUT
+ *
+ * put(ref, data, contentType, callback)
  */
-GraphAPI.prototype.put = function(ref, data, callback) {
-    ref = strformat.apply(null, slice.call(arguments, 0, -2));
-    data = slice.call(arguments, -2, -1)[0];
-    callback = slice.call(arguments, -1)[0];
-    this._request('PUT', ref, data, wrap(callback));
+GraphAPI.prototype.put = function() {
+    var ref = strformat.apply(null, slice.call(arguments, 0, -3)),
+        data = slice.call(arguments, -3, -2)[0],
+        contentType = slice.call(arguments, -2, -1)[0],
+        callback = slice.call(arguments, -1)[0];
+    this._request('PUT', ref, data, contentType, wrap(callback));
 }
 
 /**
  * HTTPS PATCH
+ *
+ * patch(ref, data, contentType, callback)
  */
-GraphAPI.prototype.patch = function(ref, data, callback) {
-    ref = strformat.apply(null, slice.call(arguments, 0, -2));
-    data = slice.call(arguments, -2, -1)[0];
-    callback = slice.call(arguments, -1)[0];
-    this._request('PATCH', ref, data, wrap(callback));
+GraphAPI.prototype.patch = function() {
+    var ref = strformat.apply(null, slice.call(arguments, 0, -3)),
+        data = slice.call(arguments, -3, -2)[0],
+        contentType = slice.call(arguments, -2, -1)[0],
+        callback = slice.call(arguments, -1)[0];
+    this._request('PATCH', ref, data, contentType, wrap(callback));
 }
 
 /**
  * HTTPS DELETE
+ *
+ * get(ref, callback)
  */
-GraphAPI.prototype.delete = function(ref, callback) {
-    ref = strformat.apply(null, slice.call(arguments, 0, -1));
-    callback = slice.call(arguments, -1)[0];
-    this._request('DELETE', ref, null, wrap(callback));
+GraphAPI.prototype.delete = function() {
+    var ref = strformat.apply(null, slice.call(arguments, 0, -1)),
+        callback = slice.call(arguments, -1)[0];
+    this._request('DELETE', ref, null, null, wrap(callback));
 }
 
 //-----------------------------------------------------------------------------
@@ -119,7 +134,7 @@ function wrap(callback) {
 // Recursive method that follows the odata.nextLink.
 GraphAPI.prototype._getObjects = function(ref, objects, objectType, callback) {
     var self = this;
-    self._request('GET', ref, null, function(err, response) {
+    self._request('GET', ref, null, null, function(err, response) {
         if (err) return callback(err);
         var value = response.value;
         for (var i = 0, n = value.length; i < n; i++) {
@@ -138,21 +153,17 @@ GraphAPI.prototype._getObjects = function(ref, objects, objectType, callback) {
 
 // If there is an access token, perform the request. If not, get an
 // access token and then perform the request.
-GraphAPI.prototype._request = function(method, ref, data, callback) {
-    method = arguments[0];
-    ref = strformat.apply(null, slice.call(arguments, 1, -2));
-    data = slice.call(arguments, -2, -1)[0];
-    callback = slice.call(arguments, -1)[0];
+GraphAPI.prototype._request = function(method, ref, data, contentType, callback) {
     var self = this;
     if (self.accessToken) {
-        self._requestWithRetry(method, ref, data, false, callback);
+        self._requestWithRetry(method, ref, data, contentType, false, callback);
     } else {
         self._requestAccessToken(function(err, token) {
             if (err) {
                 callback(err);
             } else {
                 self.accessToken = token;
-                self._requestWithRetry(method, ref, data, false, callback);
+                self._requestWithRetry(method, ref, data, contentType, false, callback);
             }
         });
     }
@@ -160,7 +171,7 @@ GraphAPI.prototype._request = function(method, ref, data, callback) {
 
 // Performs the HTTPS request and tries again on a 401 error
 // by getting another access token and repeating the request.
-GraphAPI.prototype._requestWithRetry = function(method, ref, data, secondAttempt, callback) {
+GraphAPI.prototype._requestWithRetry = function(method, ref, data, contentType, secondAttempt, callback) {
     var self = this;
     var path = ['/'];
     path.push(self.tenant);
@@ -181,6 +192,20 @@ GraphAPI.prototype._requestWithRetry = function(method, ref, data, secondAttempt
             'Authorization': 'Bearer ' + self.accessToken
         }
     };
+    if (data) {
+        if (Buffer.isBuffer(data)) {
+            options.headers['Content-Type'] = contentType;
+        } else if (!contentType) {
+            if (typeof content === 'string') {
+                options.headers['Content-Type'] = 'application/x-www-form-urlencoded';
+                options.headers['Content-Length'] = content.length;
+            } else if (content !== null && typeof content === 'object') {
+                content = JSON.stringify(content);
+                options.headers['Content-Type'] = 'application/json';
+                options.headers['Content-Length'] = content.length;
+            }
+        }
+    }
     httpsRequest(options, data, function(err, response) {
         if (err) {
             if (err.statusCode === 401 && !secondAttempt) {
@@ -189,7 +214,7 @@ GraphAPI.prototype._requestWithRetry = function(method, ref, data, secondAttempt
                         callback(err);
                     } else {
                         self.accessToken = token;
-                        self._requestWithRetry(method, ref, data, true, callback);
+                        self._requestWithRetry(method, ref, data, contentType, true, callback);
                     }
                 });
             } else {
@@ -213,7 +238,11 @@ GraphAPI.prototype._requestAccessToken = function(callback) {
     var options = {
         hostname: AAD_LOGIN_HOSTNAME,
         path: '/' + this.tenant + '/oauth2/token',
-        method: 'POST'
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+            'Content-Length': content.length
+        }
     };
     httpsRequest(options, content, function(err, response) {
         if (err) {
@@ -230,15 +259,6 @@ function httpsRequest(options, content, callback) {
     options.headers['Accept'] = 'application/json';
     if (!callback) {
         callback = content;
-        content = null;
-    } else if (typeof content === 'string') {
-        options.headers['Content-Type'] = 'application/x-www-form-urlencoded';
-        options.headers['Content-Length'] = content.length;
-    } else if (content !== null && typeof content === 'object') {
-        content = JSON.stringify(content);
-        options.headers['Content-Type'] = 'application/json';
-        options.headers['Content-Length'] = content.length;
-    } else {
         content = null;
     }
     var req = https.request(options, function(res) {
