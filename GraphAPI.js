@@ -18,7 +18,7 @@ var http = require('http'),
     slice = Array.prototype.slice,
     AAD_LOGIN_HOSTNAME = 'login.windows.net',
     GRAPH_API_HOSTNAME = 'graph.windows.net',
-    DEFAULT_API_VERSION = '1.5';
+    DEFAULT_API_VERSION = '1.6';
 
 //-----------------------------------------------------------------------------
 // PUBLIC
@@ -177,6 +177,7 @@ GraphAPI.prototype._requestWithRetry = function(method, ref, data, contentType, 
     path.push(self.tenant);
     path.push('/');
     path.push(ref);
+
     if (ref.indexOf('?') < 0) {
         path.push('?');
     } else {
@@ -193,16 +194,16 @@ GraphAPI.prototype._requestWithRetry = function(method, ref, data, contentType, 
         }
     };
     if (data) {
-        if (Buffer.isBuffer(data)) {
+        if (Buffer.isBuffer(data) || contentType) {
             options.headers['Content-Type'] = contentType;
         } else if (!contentType) {
-            if (typeof content === 'string') {
+            if (typeof data === 'string') {
                 options.headers['Content-Type'] = 'application/x-www-form-urlencoded';
-                options.headers['Content-Length'] = content.length;
-            } else if (content !== null && typeof content === 'object') {
-                content = JSON.stringify(content);
+                options.headers['Content-Length'] = data.length;
+            } else if (data !== null && typeof data === 'object') {
+                data = JSON.stringify(data);
                 options.headers['Content-Type'] = 'application/json';
-                options.headers['Content-Length'] = content.length;
+                options.headers['Content-Length'] = data.length;
             }
         }
     }
